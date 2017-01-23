@@ -22,5 +22,10 @@
   },
   "keywords": [
     "generategenerator"
-  ]
+  ],
+  "dependencies": {
+    "generate-data": "^0.1.6",
+    "github-base": "^0.5.1",
+    "is-valid-app": "^0.2.1"
+  }
 }
