@@ -1,0 +1,25 @@
+{
+  "name": "generate-gh-repo",
+  "description": "Generate generator to create a new repository on GitHub.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/generate/generate-gh-repo",
+  "author": "Brian Woodward (https://github.com/doowb)",
+  "repository": "generate/generate-gh-repo",
+  "bugs": {
+    "url": "https://github.com/generate/generate-gh-repo/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "generator.js",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "generategenerator"
+  ]
+}
