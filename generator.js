@@ -22,51 +22,52 @@ module.exports = function(app) {
     };
   };
 
-  // configure questions that my be asked later
-  app.question('project.name', 'What is the name of the repository to create?', {
-    default: getProp('project.name')
-  });
+  var prompts = [
+    'project.name',
+    'project.description',
+    'project.owner',
+    'project.type',
+    'homepage',
+    'private'
+  ];
 
-  app.question('project.description', 'What is the description of the repository?', {
-    default: getProp('project.description')
-  });
-
-  app.question('project.owner', 'Who is the owner of the repository?', {
-    default: getProp('project.owner')
-  });
-
-  app.questions.list('project.type', {
-    message: 'Is the repository owner a "user" or an "organization"?',
-    choices: [
-      'user',
-      'organization'
-    ]
-  });
-
-  app.question('homepage', 'What is the repository\'s homepage?', {
-    default: getProp('homepage')
-  });
-
-  app.confirm('private', 'Is the repository private?', {
-    default: function() {
-      var val = getProp('private')();
-      if (typeof val === 'boolean') {
-        return val;
-      }
-      return false;
-    }
-  });
-
-  app.task('ensure-properties', {silent: true}, function(cb) {
-    console.log();
-    app.ask({force: true}, function(err, answers) {
-      if (err) return cb(err);
-      app.data(answers);
-      cb();
+  app.task('questions', function(cb) {
+    // questions to gather information about the repository being created
+    app.question('project.name', 'What is the name of the repository to create?', {
+      default: getProp('project.name')
     });
-  });
 
-  app.task('github-auth', {silent: true}, ['ensure-properties'], function(cb) {
+    app.question('project.description', 'What is the description of the repository?', {
+      default: getProp('project.description')
+    });
+
+    app.question('project.owner', 'Who is the owner of the repository?', {
+      default: getProp('project.owner')
+    });
+
+    app.questions.list('project.type', {
+      message: 'Is the repository owner a "user" or an "organization"?',
+      choices: [
+        'user',
+        'organization'
+      ]
+    });
+
+    app.question('homepage', 'What is the repository\'s homepage?', {
+      default: getProp('homepage')
+    });
+
+    app.confirm('private', 'Is the repository private?', {
+      default: function() {
+        var val = getProp('private')();
+        if (typeof val === 'boolean') {
+          return val;
+        }
+        return false;
+      }
+    });
+
+    // questions for gathering GitHub authentication information from the user
     app.confirm('useAuth', 'Found saved GitHub authentication. Would you like to use it?');
     app.question('github.auth.username', 'GitHub username?', {force: true});
     app.question('github.auth.password', 'GitHub password?', {force: true, type: 'password'});
@@ -80,9 +81,22 @@ module.exports = function(app) {
       ]
     });
 
+    cb();
+  });
+
+  app.task('prompt', {silent: true}, function(cb) {
+    console.log();
+    app.ask(prompts, {force: true}, function(err, answers) {
+      if (err) return cb(err);
+      app.data(answers);
+      cb();
+    });
+  });
+
+  app.task('github-auth', {silent: true}, function(cb) {
+    console.log();
     var auth = store.get('github.auth');
     if (auth) {
-      console.log();
       app.ask('useAuth', {force: true}, function(err, answers) {
         if (err) return cb(err);
         if (answers.useAuth) {
@@ -120,7 +134,6 @@ module.exports = function(app) {
   });
 
   app.task('init-github', {silent: true}, ['github-auth'], function(cb) {
-    console.log();
     var auth = getProp('github.auth')();
     if (!auth) {
       cb(new Error('Unable to authenticate to GitHub'));
@@ -142,7 +155,8 @@ module.exports = function(app) {
    * @api public
    */
 
-  app.task('gh-repo', ['init-github'], function(cb) {
+  app.task('gh-repo', ['questions', 'init-github', 'prompt'], function(cb) {
+    console.log();
     var opts = {
       owner: getProp('project.owner')(),
       repo: getProp('project.name')()
