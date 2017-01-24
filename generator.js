@@ -22,14 +22,6 @@ module.exports = function(app) {
     };
   };
 
-  var handleAnswers = function(cb) {
-    return function(err, answers) {
-      if (err) return cb(err);
-      app.data(answers);
-      cb();
-    };
-  };
-
   // configure questions that my be asked later
   app.question('project.name', 'What is the name of the repository to create?', {
     default: getProp('project.name')
@@ -75,9 +67,7 @@ module.exports = function(app) {
   });
 
   app.task('github-auth', {silent: true}, ['ensure-properties'], function(cb) {
-    var name = getProp('project.name')();
-    var auth = store.get([name, 'auth']);
-    if (auth) return cb();
+    app.confirm('useAuth', 'Found saved GitHub authentication. Would you like to use it?');
     app.question('github.auth.username', 'GitHub username?', {force: true});
     app.question('github.auth.password', 'GitHub password?', {force: true, type: 'password'});
     app.question('github.auth.token', 'GitHub OAuth token?', {force: true});
@@ -90,19 +80,43 @@ module.exports = function(app) {
       ]
     });
 
-    app.ask('github.auth.type', function(err, answers) {
+    var auth = store.get('github.auth');
+    if (auth) {
+      console.log();
+      app.ask('useAuth', {force: true}, function(err, answers) {
+        if (err) return cb(err);
+        if (answers.useAuth) {
+          app.data('github.auth', auth);
+        } else {
+          auth = null;
+        }
+        if (auth) return cb();
+        app.ask('github.auth.type', handleGithubType);
+      });
+      return;
+    }
+    app.ask('github.auth.type', handleGithubType);
+
+    function handleGithubType(err, answers) {
       if (err) return cb(err);
       var type = answers.github.auth.type;
       if (type === 'token') {
-        app.ask('github.auth.token', handleAnswers(cb));
+        app.ask('github.auth.token', handleAnswers);
         return;
       }
 
       app.ask([
         'github.auth.username',
         'github.auth.password'
-      ], handleAnswers(cb));
-    });
+      ], handleAnswers);
+    }
+
+    function handleAnswers(err, answers) {
+      if (err) return cb(err);
+      app.data(answers);
+      store.set('github.auth', answers.github.auth);
+      cb();
+    }
   });
 
   app.task('init-github', {silent: true}, ['github-auth'], function(cb) {
