@@ -65,7 +65,8 @@ module.exports = function(app) {
     }
   });
 
-  app.task('ensure-properties', function(cb) {
+  app.task('ensure-properties', {silent: true}, function(cb) {
+    console.log();
     app.ask({force: true}, function(err, answers) {
       if (err) return cb(err);
       app.data(answers);
@@ -73,7 +74,7 @@ module.exports = function(app) {
     });
   });
 
-  app.task('github-auth', ['ensure-properties'], function(cb) {
+  app.task('github-auth', {silent: true}, ['ensure-properties'], function(cb) {
     var name = getProp('project.name')();
     var auth = store.get([name, 'auth']);
     if (auth) return cb();
@@ -104,7 +105,8 @@ module.exports = function(app) {
     });
   });
 
-  app.task('init-github', ['github-auth'], function(cb) {
+  app.task('init-github', {silent: true}, ['github-auth'], function(cb) {
+    console.log();
     var auth = getProp('github.auth')();
     if (!auth) {
       cb(new Error('Unable to authenticate to GitHub'));
@@ -142,9 +144,9 @@ module.exports = function(app) {
     github.get('/repos/:owner/:repo', opts, function(err, res) {
       if (err) return cb(err);
       if (res.id && !res.message) {
-        console.log();
-        console.log(`Unable to create new repository "${opts.owner}/${opts.repo}" because it already exists.`);
-        console.log();
+        console.log(app.log.timestamp);
+        console.log(app.log.timestamp, `Unable to create new repository "${opts.owner}/${opts.repo}" because it already exists.`);
+        console.log(app.log.timestamp);
         cb();
         return;
       }
@@ -154,16 +156,48 @@ module.exports = function(app) {
         return;
       }
 
-      var url = getProp('project.type')() === 'user'
-        ? '/user/repos'
-        : '/orgs/:owner/repos';
+      var type = getProp('project.type')();
+      var fullName = '';
+      var url = '';
+      if (type === 'user') {
+        url = '/user/repos';
+        var username = getProp('github.auth.username')();
+        fullName = (username && username + '/') || '';
+      } else {
+        url = '/orgs/:owner/repos';
+        fullName = opts.owner + '/';
+      }
+      fullName += data.name;
 
-      github.post(url, extend({}, opts, data), function(err, res) {
+      console.log(app.log.timestamp);
+      console.log(app.log.timestamp, `Creating "${fullName}" with the following settings:`);
+      console.log(app.log.timestamp, `  private:     ${data.private ? 'true' : 'false'}`);
+      console.log(app.log.timestamp, `  homepage:    ${data.homepage}`);
+      console.log(app.log.timestamp, `  description: ${data.description}`);
+      console.log(app.log.timestamp);
+
+      app.confirm('valid', 'Are you sure you want to create this repository?');
+      console.log();
+      app.ask('valid', function(err, answers) {
+        console.log();
         if (err) return cb(err);
-        console.log();
-        console.log(res);
-        console.log();
-        cb();
+        if (!answers.valid) {
+          console.log(app.log.timestamp);
+          console.log(app.log.timestamp, 'The repository has not been created. Run `$ gen gh-repo` again to start over.');
+          console.log(app.log.timestamp);
+          return cb();
+        }
+        github.post(url, extend({}, opts, data), function(err, res) {
+          if (err) return cb(err);
+          if (res.message) {
+            cb(new Error(res.message));
+            return;
+          }
+          console.log(app.log.timestamp);
+          console.log(app.log.timestamp, `"${opts.owner}/${opts.repo}" has been created.`);
+          console.log(app.log.timestamp);
+          cb();
+        });
       });
     });
   });
