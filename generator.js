@@ -318,7 +318,6 @@ module.exports = function(app) {
    * ```sh
    * # use it standalone if the repository has already been created on GitHub
    * $ gen gh-repo:enable-travis
-   *
    * # use it when creating the repository on github
    * $ gen gh-repo:default,enable-travis
    * ```
