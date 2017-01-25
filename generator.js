@@ -310,6 +310,22 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * Enable Travis-CI for the repository by creating a new webhook. This task will
+   * ask for the Travis-CI username (this should be the same as the GitHub username) and a
+   * Travis-CI token which can be found under the Accounts menu on Travis-CI.
+   *
+   * ```sh
+   * # use it standalone if the repository has already been created on GitHub
+   * $ gen gh-repo:enable-travis
+   *
+   * # use it when creating the repository on github
+   * $ gen gh-repo:default,enable-travis
+   * ```
+   * @name gh-repo:enable-travis
+   * @api public
+   */
+
   app.task('enable-travis', ['questions', 'prompt-travis'], function(cb) {
     if (!github) {
       app.build('init-github', function(err) {
