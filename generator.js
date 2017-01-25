@@ -210,7 +210,7 @@ module.exports = function(app) {
         console.log(app.log.timestamp);
         console.log(app.log.timestamp, `Unable to create new repository "${opts.owner}/${opts.repo}" because it already exists.`);
         console.log(app.log.timestamp);
-        cb();
+        cb(new Error('Repository already exists.'));
         return;
       }
 

@@ -1,14 +1,17 @@
 'use strict';
 
 require('mocha');
+var path = require('path');
 var assert = require('assert');
 var generate = require('generate');
 var generator = require('../');
 var app;
 
+var fixtures = path.resolve.bind(path, __dirname, 'fixtures');
+
 describe('generate-gh-repo', function() {
   beforeEach(function() {
-    app = generate();
+    app = generate({cwd: fixtures()});
   });
 
   describe('plugin', function() {

@@ -12,7 +12,26 @@ var generator = require('../');
 var pkg = require('../package');
 var app, mock;
 
+var cwd = process.cwd();
 var fixtures = path.resolve.bind(path, __dirname, 'fixtures');
+
+function setupMock() {
+  var data = {
+    owner: 'doowb',
+    repo: 'my-project',
+    name: 'my-project',
+    description: 'test project',
+    homepage: 'https://github.com/doowb/my-project',
+    private: true
+  };
+
+  mock.get('/repos/doowb/my-project')
+    .query(true)
+    .reply(200, {message: 'Not Found'})
+    .post('/user/repos', data)
+    .query(true)
+    .reply(200, {foo: 'bar'});
+}
 
 describe('generate-gh-repo', function() {
   if (!process.env.CI && !process.env.TRAVIS) {
@@ -21,118 +40,195 @@ describe('generate-gh-repo', function() {
     });
   }
 
-  beforeEach(function() {
-    mock = nock('https://api.github.com');
-    app = generate({
-      silent: true
-    });
-    app.cwd = fixtures();
-  });
-
   describe('tasks', function() {
     beforeEach(function() {
+      process.chdir(fixtures());
+      mock = nock('https://api.github.com');
+      app = generate({
+        cwd: fixtures(),
+        silent: true
+      });
       app.use(generator);
+      bddStdin(
+        '\n', // Use saved credentials
+        '\n', // project name
+        '\n', // project description
+        '\n', // project owner
+        '\n', // project type
+        '\n', // project homepage
+        '\n', // private
+        '\n' // create project?
+      );
     });
 
-    it('should ', function(cb) {
+    afterEach(function() {
+      process.chdir(cwd);
+    });
+
+    it('should return an error when the project already exists', function(cb) {
       mock.get('/repos/doowb/my-project')
         .query(true)
-        .reply(200, {foo: 'bar'});
+        .reply(200, {id: 123});
 
-      var github = require('github-base')();
-      github.get('/repos/:owner/:repo', {owner: 'doowb', repo: 'my-project'}, function(err, res) {
-        if (err) return cb(err);
-        console.log(res);
-        cb();
+      app.build('default', function(err, results) {
+        if (!err) return cb(new Error('expected an error'));
+        try {
+          assert.equal(err.message, 'Repository already exists.');
+          cb();
+        } catch(err) {
+          cb(err);
+        }
       });
     });
 
-    // it('should run the `default` task with .build', function(cb) {
-    //   app.build('default', exists('test.js', cb));
-    // });
+    it('should run the `default` task with .build', function(cb) {
+      setupMock();
+      app.build('default', cb);
+    });
 
-    // it('should run the `default` task with .generate', function(cb) {
-    //   app.generate('default', exists('test.js', cb));
-    // });
+    it('should run the `default` task with .generate', function(cb) {
+      setupMock();
+      app.generate('default', cb);
+    });
   });
 
-  // if (!process.env.CI && !process.env.TRAVIS) {
-  //   describe('generator (CLI)', function() {
-  //     beforeEach(function() {
-  //       bddStdin('\n');
-  //       app.use(generator);
-  //     });
+  if (!process.env.CI && !process.env.TRAVIS) {
+    describe('generator (CLI)', function() {
+      beforeEach(function() {
+        process.chdir(fixtures());
+        mock = nock('https://api.github.com');
+        app = generate({
+          cwd: fixtures(),
+          silent: true
+        });
+        app.use(generator);
+        setupMock();
+        bddStdin(
+          '\n', // Use saved credentials
+          '\n', // project name
+          '\n', // project description
+          '\n', // project owner
+          '\n', // project type
+          '\n', // project homepage
+          '\n', // private
+          '\n' // create project?
+        );
+      });
 
-  //     it('should run the default task using the `generate-gh-repo` name', function(cb) {
-  //       app.generate('generate-gh-repo', exists('test.js', cb));
-  //     });
+      afterEach(function() {
+        process.chdir(cwd);
+      });
 
-  //     it('should run the default task using the `generator` generator alias', function(cb) {
-  //       app.generate('gh-repo', exists('test.js', cb));
-  //     });
-  //   });
-  // }
+      it('should run the default task using the `generate-gh-repo` name', function(cb) {
+        app.generate('generate-gh-repo', cb);
+      });
 
-  // describe('generator (API)', function() {
-  //   beforeEach(function() {
-  //     bddStdin('\n');
-  //   });
+      it('should run the default task using the `generator` generator alias', function(cb) {
+        app.generate('gh-repo', cb);
+      });
+    });
+  }
 
-  //   it('should run the default task on the generator', function(cb) {
-  //     app.register('gh-repo', generator);
-  //     app.generate('gh-repo', exists('test.js', cb));
-  //   });
+  describe('generator (API)', function() {
+    beforeEach(function() {
+      process.chdir(fixtures());
+      mock = nock('https://api.github.com');
+      app = generate({
+        cwd: fixtures(),
+        silent: true
+      });
+      setupMock();
+      bddStdin(
+        '\n', // Use saved credentials
+        '\n', // project name
+        '\n', // project description
+        '\n', // project owner
+        '\n', // project type
+        '\n', // project homepage
+        '\n', // private
+        '\n' // create project?
+      );
+    });
 
-  //   it('should run the `gh-repo` task', function(cb) {
-  //     app.register('gh-repo', generator);
-  //     app.generate('gh-repo:gh-repo', exists('test.js', cb));
-  //   });
+    afterEach(function() {
+      process.chdir(cwd);
+    });
 
-  //   it('should run the `default` task when defined explicitly', function(cb) {
-  //     app.register('gh-repo', generator);
-  //     app.generate('gh-repo:default', exists('test.js', cb));
-  //   });
-  // });
+    it('should run the default task on the generator', function(cb) {
+      app.register('foo', generator);
+      app.generate('foo', cb);
+    });
 
-  // describe('sub-generator', function() {
-  //   beforeEach(function() {
-  //     bddStdin('\n');
-  //   });
+    it('should run the `gh-repo` task', function(cb) {
+      app.register('foo', generator);
+      app.generate('foo:gh-repo', cb);
+    });
 
-  //   it('should work as a sub-generator', function(cb) {
-  //     app.register('foo', function(foo) {
-  //       foo.register('gh-repo', generator);
-  //     });
-  //     app.generate('foo.gh-repo', exists('test.js', cb));
-  //   });
+    it('should run the `default` task when defined explicitly', function(cb) {
+      app.register('foo', generator);
+      app.generate('foo:default', cb);
+    });
+  });
 
-  //   it('should run the `default` task by default', function(cb) {
-  //     app.register('foo', function(foo) {
-  //       foo.register('gh-repo', generator);
-  //     });
-  //     app.generate('foo.gh-repo', exists('test.js', cb));
-  //   });
+  describe('sub-generator', function() {
+    beforeEach(function() {
+      process.chdir(fixtures());
+      mock = nock('https://api.github.com');
+      app = generate({
+        cwd: fixtures(),
+        silent: true
+      });
+      setupMock();
+      bddStdin(
+        '\n', // Use saved credentials
+        '\n', // project name
+        '\n', // project description
+        '\n', // project owner
+        '\n', // project type
+        '\n', // project homepage
+        '\n', // private
+        '\n' // create project?
+      );
+    });
 
-  //   it('should run the `gh-repo:default` task when defined explicitly', function(cb) {
-  //     app.register('foo', function(foo) {
-  //       foo.register('gh-repo', generator);
-  //     });
-  //     app.generate('foo.gh-repo:default', exists('test.js', cb));
-  //   });
+    afterEach(function() {
+      process.chdir(cwd);
+    });
 
-  //   it('should run the `gh-repo:gh-repo` task', function(cb) {
-  //     app.register('foo', function(foo) {
-  //       foo.register('gh-repo', generator);
-  //     });
-  //     app.generate('foo.gh-repo:gh-repo', exists('test.js', cb));
-  //   });
+    it('should work as a sub-generator', function(cb) {
+      app.register('foo', function(foo) {
+        foo.register('gh-repo', generator);
+      });
+      app.generate('foo.gh-repo', cb);
+    });
 
-  //   it('should work with nested sub-generators', function(cb) {
-  //     app
-  //       .register('foo', generator)
-  //       .register('bar', generator)
-  //       .register('baz', generator);
-  //     app.generate('foo.bar.baz', exists('test.js', cb));
-  //   });
-  // });
+    it('should run the `default` task by default', function(cb) {
+      app.register('foo', function(foo) {
+        foo.register('gh-repo', generator);
+      });
+      app.generate('foo.gh-repo', cb);
+    });
+
+    it('should run the `gh-repo:default` task when defined explicitly', function(cb) {
+      app.register('foo', function(foo) {
+        foo.register('gh-repo', generator);
+      });
+      app.generate('foo.gh-repo:default', cb);
+    });
+
+    it('should run the `gh-repo:gh-repo` task', function(cb) {
+      app.register('foo', function(foo) {
+        foo.register('gh-repo', generator);
+      });
+      app.generate('foo.gh-repo:gh-repo', cb);
+    });
+
+    it('should work with nested sub-generators', function(cb) {
+      app
+        .register('foo', generator)
+        .register('bar', generator)
+        .register('baz', generator);
+      app.generate('foo.bar.baz', cb);
+    });
+  });
 });
