@@ -30,7 +30,12 @@
     "is-valid-app": "^0.2.1"
   },
   "devDependencies": {
-    "gulp-format-md": "^0.1.11"
+    "bdd-stdin": "^0.2.0",
+    "generate": "^0.13.1",
+    "gulp-format-md": "^0.1.11",
+    "mocha": "^3.2.0",
+    "nock": "^9.0.2",
+    "npm-install-global": "^0.1.2"
   },
   "verb": {
     "toc": false,
