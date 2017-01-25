@@ -89,7 +89,39 @@ module.exports = function(app) {
       ]
     });
 
+    // questions for gathering Travis-CI webhook information from the user
+    app.confirm('configureTravis', 'Would you like to enable Travis-CI for this repository?');
+    app.confirm('useTravisAuth', 'Found saved Travis-CI authentication. Would you like to use it?');
+    app.question('travis.username', 'GitHub username (associated with travis-ci)?', {force: true});
+    app.question('travis.token', 'Travis-CI token?');
+
     cb();
+  });
+
+  app.task('prompt-travis', {silent: true}, function(cb) {
+    console.log();
+    var travis = store.get('travis');
+    if (travis) {
+      app.ask('useTravisAuth', {force: true}, function(err, answers) {
+        if (err) return cb(err);
+        if (answers.useTravisAuth) {
+          app.data('travis', travis);
+        } else {
+          travis = null;
+        }
+        if (travis) return cb();
+        app.ask(['travis.username', 'travis.token'], handleAnswers);
+      });
+      return;
+    }
+    app.ask(['travis.username', 'travis.token'], handleAnswers);
+
+    function handleAnswers(err, answers) {
+      if (err) return cb(err);
+      app.data(answers);
+      store.set('travis', answers.travis);
+      cb();
+    }
   });
 
   /**
@@ -126,6 +158,9 @@ module.exports = function(app) {
       app.ask('useAuth', {force: true}, function(err, answers) {
         if (err) return cb(err);
         if (answers.useAuth) {
+          if (auth.type !== 'token') {
+            delete auth.token;
+          }
           app.data('github.auth', auth);
         } else {
           auth = null;
@@ -259,10 +294,84 @@ module.exports = function(app) {
           console.log(app.log.timestamp);
           console.log(app.log.timestamp, `"${opts.owner}/${opts.repo}" has been created.`);
           console.log(app.log.timestamp);
-          cb();
+          console.log();
+
+          // ask if the user would like to also enable travis-ci
+          app.ask('configureTravis', function(err, answers) {
+            console.log();
+            if (err) return cb(err);
+            if (!answers.configureTravis) {
+              return cb();
+            }
+            app.build('enable-travis', cb);
+          });
         });
       });
     });
+  });
+
+  app.task('enable-travis', ['questions', 'prompt-travis'], function(cb) {
+    if (!github) {
+      app.build('init-github', function(err) {
+        if (err) return cb(err);
+        enableTravis();
+      });
+      return;
+    }
+    enableTravis();
+
+    function enableTravis() {
+      var opts = {
+        owner: getProp('project.owner')(),
+        repo: getProp('project.name')()
+      };
+
+      // check to see if the webhook exists
+      github.get('/repos/:owner/:repo/hooks', opts, function(err, hooks) {
+        if (err) return cb(err);
+        if (hooks && hooks.message) {
+          return cb(new Error(hooks.message));
+        }
+
+        if (hasHook(hooks, 'travis')) {
+          console.log();
+          console.log(`The Travis-CI webhook is already enabled for "${opts.owner}/${opts.repo}"`);
+          console.log();
+          return cb();
+        }
+
+        var data = {
+          name: 'travis',
+          config: {
+            user: getProp('travis.username')(),
+            token: getProp('travis.token')(),
+            domain: 'notify.travis-ci.org'
+          },
+          active: true
+        };
+
+        github.post('/repos/:owner/:repo/hooks', extend({}, opts, data), function(err, res) {
+          if (err) return cb(err);
+          if (res && res.message) {
+            return cb(new Error(res.message));
+          }
+          console.log();
+          console.log(`The Travis-CI webhook has been enabled for "${opts.owner}/${opts.repo}"`);
+          console.log();
+          cb();
+        })
+      });
+    }
+
+    function hasHook(arr, name) {
+      if (!arr || !arr.length) return false;
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].name === name) {
+          return true;
+        }
+      }
+      return false;
+    }
   });
 
   /**
