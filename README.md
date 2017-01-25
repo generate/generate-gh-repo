@@ -61,7 +61,7 @@ Answers to prompts and the user's environment can be used to determine the templ
 
 **Installing the CLI**
 
-To run the `gh-repo` generator from the command line, you'll need to install [Generate][] globally first. You can do that now with the following command:
+To run the `gh-repo` generator from the command line, you'll need to install [Generate](https://github.com/generate/generate) globally first. You can do that now with the following command:
 
 ```sh
 $ npm install --global generate
@@ -157,12 +157,12 @@ $ npm publish
 
 ### Community
 
-Are you using [Generate][] in your project? Have you published a [generator](https://github.com/generate/generate/blob/master/docs/generators.md) and want to share your project with the world?
+Are you using [Generate](https://github.com/generate/generate) in your project? Have you published a [generator](https://github.com/generate/generate/blob/master/docs/generators.md) and want to share your project with the world?
 
 Here are some suggestions!
 
 * If you get like Generate and want to tweet about it, please feel free to mention `@generatejs` or use the `#generatejs` hashtag
-* Show your love by starring [Generate][] and `generate-gh-repo`
+* Show your love by starring [Generate](https://github.com/generate/generate) and `generate-gh-repo`
 * Get implementation help on [StackOverflow](http://stackoverflow.com/questions/tagged/generate) (please use the `generatejs` tag in questions)
 * **Gitter** Discuss Generate with us on [Gitter](https://gitter.im/generate/generate)
 * If you publish an generator, thank you! To make your project as discoverable as possible, please add the keyword `generategenerator` to package.json.
