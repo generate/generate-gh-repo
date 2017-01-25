@@ -16,12 +16,14 @@ module.exports = function(app) {
   // configure a datastore to hold github authentication details
   var store = app.store.create('generate-gh-repo');
 
+  // uitility to get a property from `app.cache.data`
   var getProp = function(prop) {
     return function() {
       return app.get(`cache.data.${prop}`);
     };
   };
 
+  // questions to ask when prompting the user for information
   var prompts = [
     'project.name',
     'project.description',
@@ -31,7 +33,13 @@ module.exports = function(app) {
     'private'
   ];
 
-  app.task('questions', function(cb) {
+  /**
+   * Setup prompts that may be asked later
+   *
+   * @name gh-repo:questions
+   */
+
+  app.task('questions', {silent: true}, function(cb) {
     // questions to gather information about the repository being created
     app.question('project.name', 'What is the name of the repository to create?', {
       default: getProp('project.name')
@@ -84,6 +92,15 @@ module.exports = function(app) {
     cb();
   });
 
+  /**
+   * Prompt the user for information about the repository being created.
+   *
+   * ```sh
+   * $ gen gh-repo:prompt
+   * ```
+   * @name gh-repo:prompt
+   */
+
   app.task('prompt', {silent: true}, function(cb) {
     console.log();
     app.ask(prompts, {force: true}, function(err, answers) {
@@ -92,6 +109,15 @@ module.exports = function(app) {
       cb();
     });
   });
+
+  /**
+   * Prompt the user for GitHub authentication information
+   *
+   * ```sh
+   * $ gen gh-repo:auth
+   * ```
+   * @name gh-repo:auth
+   */
 
   app.task('github-auth', {silent: true}, function(cb) {
     console.log();
@@ -132,6 +158,15 @@ module.exports = function(app) {
       cb();
     }
   });
+
+  /**
+   * Initialize the github instance using the user's GitHub authentication information.
+   *
+   * ```sh
+   * $ gen gh-repo:init-github
+   * ```
+   * @name gh-repo:init-github
+   */
 
   app.task('init-github', {silent: true}, ['github-auth'], function(cb) {
     var auth = getProp('github.auth')();
