@@ -24,8 +24,33 @@
     "generategenerator"
   ],
   "dependencies": {
+    "extend-shallow": "^2.0.1",
     "generate-data": "^0.1.6",
     "github-base": "^0.5.1",
     "is-valid-app": "^0.2.1"
+  },
+  "devDependencies": {
+    "gulp-format-md": "^0.1.11"
+  },
+  "verb": {
+    "toc": false,
+    "layout": "generator",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "lint": {
+      "reflinks": true
+    },
+    "related": {
+      "list": []
+    },
+    "reflinks": [
+      "assemble",
+      "base",
+      "gulp"
+    ]
   }
 }

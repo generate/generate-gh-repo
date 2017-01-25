@@ -271,7 +271,7 @@ module.exports = function(app) {
    * ```sh
    * $ gen gh-repo
    * ```
-   * @name gh-repo
+   * @name default
    * @api public
    */
 
