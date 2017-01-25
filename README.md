@@ -9,7 +9,7 @@ Generate generator to create a new repository on GitHub.
 
 # generate-gh-repo
 
-[![NPM version](https://img.shields.io/npm/v/generate-gh-repo.svg?style=flat)](https://www.npmjs.com/package/generate-gh-repo) [![NPM monthly downloads](https://img.shields.io/npm/dm/generate-gh-repo.svg?style=flat)](https://npmjs.org/package/generate-gh-repo)
+[![NPM version](https://img.shields.io/npm/v/generate-gh-repo.svg?style=flat)](https://www.npmjs.com/package/generate-gh-repo) [![NPM monthly downloads](https://img.shields.io/npm/dm/generate-gh-repo.svg?style=flat)](https://npmjs.org/package/generate-gh-repo) [![Build Status](https://img.shields.io/travis/generate/generate-gh-repo.svg?style=flat)](https://travis-ci.org/generate/generate-gh-repo)
 
 ![generate-gh-repo demo](https://raw.githubusercontent.com/generate/generate-gh-repo/master/docs/demo.gif)
 
