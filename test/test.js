@@ -57,7 +57,8 @@ describe('generate-gh-repo', function() {
         '\n', // project type
         '\n', // project homepage
         '\n', // private
-        '\n' // create project?
+        '\n', // create project?
+        'n\n' // enable travis-ci?
       );
     });
 
@@ -111,7 +112,8 @@ describe('generate-gh-repo', function() {
           '\n', // project type
           '\n', // project homepage
           '\n', // private
-          '\n' // create project?
+          '\n', // create project?
+          'n\n' // enable travis-ci?
         );
       });
 
@@ -146,7 +148,8 @@ describe('generate-gh-repo', function() {
         '\n', // project type
         '\n', // project homepage
         '\n', // private
-        '\n' // create project?
+        '\n', // create project?
+        'n\n' // enable travis-ci?
       );
     });
 
@@ -187,7 +190,8 @@ describe('generate-gh-repo', function() {
         '\n', // project type
         '\n', // project homepage
         '\n', // private
-        '\n' // create project?
+        '\n', // create project?
+        'n\n' // enable travis-ci?
       );
     });
 
