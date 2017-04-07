@@ -43,18 +43,6 @@ app.use(require('generate-gh-repo'));
 app.register('repo', require('generate-gh-repo'));
 ```
 
-## What is "Generate"?
-
-Generate is a command line tool and developer framework for scaffolding out new GitHub projects using [generators](https://github.com/generate/generate/blob/master/docs/generators.md) and [tasks](https://github.com/generate/generate/blob/master/docs/tasks.md).
-
-Answers to prompts and the user's environment can be used to determine the templates, directories, files and contents to build. Support for [gulp](http://gulpjs.com), [base](https://github.com/node-base/base) and [assemble](https://github.com/assemble/assemble) plugins, and much more.
-
-**For more information**:
-
-* Visit the [generate project](https://github.com/generate/generate/)
-* Visit the [generate documentation](https://github.com/generate/generate/blob/master/docs/)
-* Find [generators on npm](https://www.npmjs.com/browse/keyword/generate-generator) (help us [author generators](https://github.com/generate/generate/blob/master/docs/micro-generators.md))
-
 ## Getting started
 
 ### Install
@@ -77,7 +65,7 @@ Install this module with the following command:
 $ npm install --global generate-gh-repo
 ```
 
-### Usage
+### CLI
 
 Run this generator's `default` [task](https://github.com/generate/generate/blob/master/docs/tasks.md#default) with the following command:
 
@@ -105,45 +93,6 @@ To see a general help menu and available commands for Generate's CLI, run:
 $ gen help
 ```
 
-## Tasks
-
-All available tasks.
-
-### [gh-repo:gh-repo](generator.js#L228)
-
-Create a new repository on GitHub. The generator will attempt to use data from the current project's package.json and git repository information, while prompting for user input and validation.
-
-**Example**
-
-```sh
-$ gen gh-repo:gh-repo
-```
-
-### [gh-repo:enable-travis](generator.js#L328)
-
-Enable Travis-CI for the repository by creating a new webhook. This task will ask for the Travis-CI username (this should be the same as the GitHub username) and a Travis-CI token which can be found under the Accounts menu on Travis-CI.
-
-**Example**
-
-```sh
-# use it standalone if the repository has already been created on GitHub
-$ gen gh-repo:enable-travis
-# use it when creating the repository on github
-$ gen gh-repo:default,enable-travis
-```
-
-### [default](generator.js#L402)
-
-Alias for running the [gh-repo](#gh-repo) task with the following command:
-
-**Example**
-
-```sh
-$ gen gh-repo
-```
-
-Visit Generate's [documentation for tasks](https://github.com/generate/generate/blob/master/docs/tasks.md).
-
 ## Next steps
 
 ### Running unit tests
@@ -168,6 +117,18 @@ $ npm publish
 
 ## About
 
+### What is "Generate"?
+
+Generate is a command line tool and developer framework for scaffolding out new GitHub projects using [generators](https://github.com/generate/generate/blob/master/docs/generators.md) and [tasks](https://github.com/generate/generate/blob/master/docs/tasks.md).
+
+Answers to prompts and the user's environment can be used to determine the templates, directories, files and contents to build. Support for [gulp](http://gulpjs.com), [base](https://github.com/node-base/base) and [assemble](https://github.com/assemble/assemble) plugins, and much more.
+
+**For more information**:
+
+* Visit the [generate project](https://github.com/generate/generate/)
+* Visit the [generate documentation](https://github.com/generate/generate/blob/master/docs/)
+* Find [generators on npm](https://www.npmjs.com/browse/keyword/generate-generator) (help us [author generators](https://github.com/generate/generate/blob/master/docs/micro-generators.md))
+
 ### Community
 
 Are you using [Generate](https://github.com/generate/generate) in your project? Have you published a [generator](https://github.com/generate/generate/blob/master/docs/generators.md) and want to share your project with the world?
@@ -184,14 +145,14 @@ Here are some suggestions!
 
 Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](../../issues/new).
 
-Please read the [contributing guide](contributing.md) for avice on opening issues, pull requests, and coding standards.
+Please read the [contributing guide](.github/contributing.md) for advice on opening issues, pull requests, and coding standards.
 
 ### Running tests
 
-Install dev dependencies:
+Running and reviewing unit tests is a great way to get familiarized with a library and its API. You can install dependencies and run tests with the following command:
 
 ```sh
-$ npm install -d && npm test
+$ npm install && npm test
 ```
 
 ### Author
@@ -199,13 +160,13 @@ $ npm install -d && npm test
 **Brian Woodward**
 
 * [github/doowb](https://github.com/doowb)
-* [twitter/doowb](http://twitter.com/doowb)
+* [twitter/doowb](https://twitter.com/doowb)
 
 ### License
 
 Copyright © 2017, [Brian Woodward](https://github.com/doowb).
-Released under the [MIT license](LICENSE).
+Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.3.0, on January 25, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.4.3, on April 07, 2017._
