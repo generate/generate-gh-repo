@@ -15,13 +15,26 @@
   ],
   "main": "index.js",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.0"
   },
   "scripts": {
     "test": "mocha"
   },
   "keywords": [
-    "generategenerator"
+    "create",
+    "create-github-repo",
+    "create-github-repository",
+    "generate",
+    "generate-github-repo",
+    "generate-github-repository",
+    "generate-repo",
+    "generate-repository",
+    "generategenerator",
+    "github",
+    "github-repo",
+    "github-repository",
+    "repo",
+    "repository"
   ],
   "dependencies": {
     "extend-shallow": "^2.0.1",
