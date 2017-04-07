@@ -16,7 +16,7 @@ var cwd = process.cwd();
 var fixtures = path.resolve.bind(path, __dirname, 'fixtures');
 
 function setupMock() {
-  var data = {
+  var data1 = {
     owner: 'doowb',
     repo: 'my-project',
     name: 'my-project',
@@ -25,10 +25,22 @@ function setupMock() {
     private: true
   };
 
+  var data2 = {
+    owner: 'doowb',
+    repo: 'my-project',
+    name: 'my-project',
+    description: 'test project',
+    homepage: 'https://github.com/doowb',
+    private: true
+  };
+
   mock.get('/repos/doowb/my-project')
     .query(true)
     .reply(200, {message: 'Not Found'})
-    .post('/user/repos', data)
+    .post('/user/repos', data1)
+    .query(true)
+    .reply(200, {foo: 'bar'})
+    .post('/user/repos', data2)
     .query(true)
     .reply(200, {foo: 'bar'});
 }

@@ -62,7 +62,16 @@ module.exports = function(app) {
     });
 
     app.question('homepage', 'What is the repository\'s homepage?', {
-      default: getProp('homepage')
+      default: function() {
+        var homepage = getProp('homepage')();
+        var name = getProp('project.name')();
+        var owner = getProp('project.owner')();
+        var repo = `https://github.com/${owner}/${name}`;
+        if (repo === homepage) {
+          return getProp('author.url')() || `https://github.com/${owner}`;
+        }
+        return homepage;
+      }
     });
 
     app.confirm('private', 'Is the repository private?', {
