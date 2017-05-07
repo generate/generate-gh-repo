@@ -39,6 +39,7 @@
   "dependencies": {
     "extend-shallow": "^2.0.1",
     "generate-data": "^0.1.6",
+    "git-add-remote": "^1.0.0",
     "github-base": "^0.5.1",
     "is-valid-app": "^0.2.1"
   },

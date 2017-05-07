@@ -3,8 +3,10 @@
 var path = require('path');
 var extend = require('extend-shallow');
 var isValid = require('is-valid-app');
+var gitAddRemote = require('git-add-remote');
 var GitHub = require('github-base');
 var github;
+
 
 module.exports = function(app) {
   // return if the generator is already registered
@@ -15,6 +17,9 @@ module.exports = function(app) {
 
   // configure a datastore to hold github authentication details
   var store = app.store.create('generate-gh-repo');
+
+  // initialize git-add-remote in the current working directory
+  var addRemote = gitAddRemote(app.cwd);
 
   // uitility to get a property from `app.cache.data`
   var getProp = function(prop) {
@@ -97,6 +102,9 @@ module.exports = function(app) {
         'username/password'
       ]
     });
+
+    // prompt the user about adding the newly created git remote
+    app.confirm('remote', 'Would you like to add the git remote origin url?');
 
     // questions for gathering Travis-CI webhook information from the user
     app.confirm('configureTravis', 'Would you like to enable Travis-CI for this repository?');
@@ -283,12 +291,12 @@ module.exports = function(app) {
       console.log(app.log.timestamp, `  description: ${data.description}`);
       console.log(app.log.timestamp);
 
-      app.confirm('valid', 'Are you sure you want to create this repository?');
+      app.confirm('confirmCreate', 'Are you sure you want to create this repository?');
       console.log();
-      app.ask('valid', function(err, answers) {
+      app.ask('confirmCreate', function(err, answers) {
         console.log();
         if (err) return cb(err);
-        if (!answers.valid) {
+        if (!answers.confirmCreate) {
           console.log(app.log.timestamp);
           console.log(app.log.timestamp, 'The repository has not been created. Run `$ gen gh-repo` again to start over.');
           console.log(app.log.timestamp);
@@ -305,14 +313,21 @@ module.exports = function(app) {
           console.log(app.log.timestamp);
           console.log();
 
-          // ask if the user would like to also enable travis-ci
-          app.ask('configureTravis', function(err, answers) {
-            console.log();
+          app.ask('remote', function(err, answers) {
             if (err) return cb(err);
-            if (!answers.configureTravis) {
-              return cb();
+            if (answers.remote && !process.env.GENERATOR_TEST) {
+              addRemote.sync('origin', app.cache.data.https + '.git');
             }
-            app.build('enable-travis', cb);
+
+            // ask if the user would like to also enable travis-ci
+            app.ask('configureTravis', function(err, answers) {
+              console.log();
+              if (err) return cb(err);
+              if (!answers.configureTravis) {
+                return cb();
+              }
+              app.build('enable-travis', cb);
+            });
           });
         });
       });

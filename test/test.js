@@ -1,5 +1,6 @@
 'use strict';
 
+process.env.GENERATOR_TEST = true;
 require('mocha');
 var fs = require('fs');
 var path = require('path');
@@ -70,6 +71,7 @@ describe('generate-gh-repo', function() {
         '\n', // project homepage
         '\n', // private
         '\n', // create project?
+        '\n', // git remote?
         'n\n' // enable travis-ci?
       );
     });
