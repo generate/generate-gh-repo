@@ -1,7 +1,7 @@
 {
   "name": "generate-gh-repo",
   "description": "Generate generator to create a new repository on GitHub.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/generate/generate-gh-repo",
   "author": "Brian Woodward (https://github.com/doowb)",
   "repository": "generate/generate-gh-repo",
